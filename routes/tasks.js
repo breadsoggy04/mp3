@@ -40,8 +40,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const { name, deadline, description, completed, assignedUser } = req.body;
-    if (!name || !deadline)
-      return res.status(400).json({ message: 'Name and deadline required', data: null });
+
 
     const task = new Task({
       name,
@@ -53,7 +52,7 @@ router.post('/', async (req, res) => {
     if (assignedUser) {
       const user = await User.findById(assignedUser);
       if (!user)
-        return res.status(400).json({ message: 'Assigned user not found', data: null });
+        return res.status(400).json({ message: 'user not found', data: null });
       task.assignedUser = user._id;
       task.assignedUserName = user.name;
       await task.save();
@@ -72,15 +71,13 @@ router.put('/:id', async (req, res) => {
   try {
     const { name, deadline, description, completed, assignedUser } = req.body;
     const task = await Task.findById(req.params.id);
-    if (!task) return res.status(404).json({ message: 'Task not found', data: null });
+    if (!task) return res.status(404).json({ message: 'not found', data: null });
     if (name) task.name = name;
     if (deadline) task.deadline = deadline;
     if (description !== undefined) task.description = description;
     if (completed !== undefined) task.completed = completed;
     if (assignedUser) {
       const user = await User.findById(assignedUser);
-      if (!user)
-        return res.status(400).json({ message: 'Assigned user not found', data: null });
       if (task.assignedUser && task.assignedUser.toString() !== assignedUser) {
         await User.updateOne(
           { _id: task.assignedUser },
@@ -104,7 +101,7 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
-    if (!task) return res.status(404).json({ message: 'Task not found', data: null });
+    if (!task) return res.status(404).json({ message: 'not found', data: null });
     if (task.assignedUser) {
       await User.updateOne(
         { _id: task.assignedUser },
@@ -112,7 +109,7 @@ router.delete('/:id', async (req, res) => {
       );
     }
     await task.deleteOne();
-    res.status(204).json({ message: 'Task deleted', data: null });
+    res.status(204).json({ message: 'deleted', data: null });
   } catch (err) {
     res.status(500).json({ message: 'Server error', data: err });
   }
